@@ -20,7 +20,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     getSingleUser(data?.uid).then((user: any) => {
-      setUserInfo(user.data);
+      setUserInfo(user?.data);
     });
   }, []);
 
