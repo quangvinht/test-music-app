@@ -14,15 +14,22 @@ import { getSingleUser } from "../../../services/userServices";
 const Header: React.FC = () => {
   let { pathname } = useLocation();
   let jsonValue: any = localStorage.getItem("user");
-  const data = jsonValue ? JSON.parse(jsonValue) : null;
 
   const [userInfo, setUserInfo] = useState<User>();
+  const [dataLocal, setDataLocal] = useState<any>([]);
 
   useEffect(() => {
-    getSingleUser(data?.uid).then((user: any) => {
+    if (jsonValue) {
+      const data = JSON.parse(jsonValue);
+      setDataLocal(data);
+    } else {
+      // Xử lý trường hợp dữ liệu không tồn tại trong LocalStorage.
+    }
+
+    getSingleUser(dataLocal?.uid).then((user: any) => {
       setUserInfo(user?.data);
     });
-  }, [data?.uid, jsonValue]);
+  }, [dataLocal?.uid, jsonValue]);
 
   const navigate = useNavigate();
   const handleSignOut = async () => {
@@ -60,7 +67,7 @@ const Header: React.FC = () => {
                 onClick={() => {
                   navigate(`/profile/${userInfo?.uid}`);
                 }}
-                src={data?.photoURL}
+                src={dataLocal?.photoURL}
                 alt="avatar"
                 className="avatar mr-2"
               />
