@@ -14,14 +14,15 @@ import { getSingleUser } from "../../../services/userServices";
 const Header: React.FC = () => {
   let { pathname } = useLocation();
   let jsonValue: any = localStorage.getItem("user");
-  let data: any = JSON.parse(jsonValue);
+  const data = jsonValue ? JSON.parse(jsonValue) : null;
+
   const [userInfo, setUserInfo] = useState<User>();
 
   useEffect(() => {
     getSingleUser(data?.uid).then((user: any) => {
       setUserInfo(user?.data);
     });
-  }, []);
+  }, [data?.uid, jsonValue]);
 
   const navigate = useNavigate();
   const handleSignOut = async () => {
