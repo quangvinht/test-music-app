@@ -13,20 +13,18 @@ import "react-toastify/dist/ReactToastify.css";
 
 interface Props {
   music: Music;
-
 }
 
 const CardSong: React.FC<Props> = ({ music }) => {
-  let jsonValue: any = localStorage.getItem("user");
-  let parse: any = JSON.parse(jsonValue);
-
   const [userInfo, setUserInfo] = useState<User>();
   const [idUser, setIdUser] = useState<string>("");
 
   let { pathname } = useLocation();
 
   useEffect(() => {
-    getSingleUser(parse.uid).then((user: any) => {
+    let jsonValue: any = localStorage.getItem("user");
+    let parse: any = JSON.parse(jsonValue);
+    getSingleUser(parse?.uid).then((user: any) => {
       setUserInfo(user);
       setIdUser(user.id);
     });

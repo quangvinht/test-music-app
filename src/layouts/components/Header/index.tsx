@@ -13,7 +13,6 @@ import { getSingleUser } from "../../../services/userServices";
 
 const Header: React.FC = () => {
   let { pathname } = useLocation();
-
   let jsonValue: any = localStorage.getItem("user");
   let data: any = JSON.parse(jsonValue);
   const [userInfo, setUserInfo] = useState<User>();
@@ -58,7 +57,7 @@ const Header: React.FC = () => {
             <div className="flex items-center">
               <img
                 onClick={() => {
-                  navigate(`/profile/${data.uid}`);
+                  navigate(`/profile/${userInfo?.uid}`);
                 }}
                 src={data?.photoURL}
                 alt="avatar"

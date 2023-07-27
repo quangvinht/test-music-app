@@ -6,13 +6,12 @@ import Music from "../../models/Music";
 import CardSong from "../../components/CardSong";
 
 const Profile = () => {
-  let jsonValue: any = localStorage.getItem("user");
-  let data: any = JSON.parse(jsonValue);
-
   const [musics, setMusics] = useState<Array<Music>>([]);
 
   useEffect(() => {
-    getSingleUser(data.uid).then((user: any) => {
+    let jsonValue: any = localStorage.getItem("user");
+    let data: any = JSON.parse(jsonValue);
+    getSingleUser(data?.uid).then((user: any) => {
       setMusics(user.data.favorites);
     });
   }, []);
