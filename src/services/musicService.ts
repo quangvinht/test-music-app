@@ -13,7 +13,7 @@ const getAllMusics = async () => {
   let musics: Array<Object> = [];
 
   const querySnapshot = await getDocs(collection(db, "musics"));
-  querySnapshot.forEach((doc) => {
+  querySnapshot.forEach((doc: any) => {
     const musicInfo = { id: doc.id, data: doc.data() };
     musics.push(musicInfo);
   });

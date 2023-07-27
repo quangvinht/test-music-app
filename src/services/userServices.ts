@@ -26,8 +26,8 @@ const getAllUsers = async () => {
 
   const querySnapshot = await getDocs(collection(db, "users"));
   querySnapshot.forEach((doc) => {
-    const userInfor = { id: doc.id, data: doc.data() };
-    userData.push(userInfor);
+    const userInfo = { id: doc.id, data: doc.data() };
+    userData.push(userInfo);
   });
 
   return userData;
@@ -37,12 +37,8 @@ const getSingleUser = async (id: string) => {
   let userData: Array<Object> = [];
   const querySnapshot = await getDocs(collection(db, "users"));
   querySnapshot.forEach((doc) => {
-    const userInfor = { id: doc.id, data: doc.data() };
-    userData.push(userInfor);
-  });
-
-  const userMapByData = userData.map((user: any) => {
-    return user.data;
+    const userInfo: Object = { id: doc.id, data: doc.data() };
+    userData.push(userInfo);
   });
 
   const findUser = userData.find((user: any) => {
@@ -56,13 +52,13 @@ const signInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
   return await signInWithPopup(auth, provider)
-    .then((result) => {
+    .then((result: any) => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
 
       const user = result.user;
 
       const { uid, displayName, email, photoURL } = user;
-      const createUser = {
+      const createUser: User = {
         uid,
         name: displayName,
         email,
@@ -101,11 +97,11 @@ const signInWithFacebook = async () => {
   provider.addScope("email");
 
   return await signInWithPopup(auth, provider)
-    .then((result) => {
+    .then((result: any) => {
       const user = result.user;
 
       const { uid, displayName, email, photoURL } = user;
-      const createUser = {
+      const createUser: User = {
         uid,
         name: displayName,
         email,
@@ -155,17 +151,20 @@ const updateUser = async (
 
   musicFavorite: Music
 ) => {
-  const updateFavoriteMusic: any = [...userData.data.favorites, musicFavorite];
+  const updateFavoriteMusic: Array<any> = [
+    ...userData.data.favorites,
+    musicFavorite,
+  ];
 
-  let isUnique = false;
+  let isUnique: boolean = false;
 
-  const uniqueObjectsArray = [];
+  const uniqueFavoriteMusic = [];
   const seenTitles = new Set();
 
   for (const obj of updateFavoriteMusic) {
     if (!seenTitles.has(obj.title)) {
       isUnique = true;
-      uniqueObjectsArray.push(obj);
+      uniqueFavoriteMusic.push(obj);
       seenTitles.add(obj.title);
     } else {
       isUnique = false;
@@ -175,10 +174,10 @@ const updateUser = async (
   const userCollRef = doc(db, "users", userData.id);
 
   if (!isUnique) {
-    console.log("Da có bài hát rồi");
+    console.log("this music already have");
   } else {
-    await updateDoc(userCollRef, { favorites: uniqueObjectsArray })
-      .then((response) => {
+    await updateDoc(userCollRef, { favorites: uniqueFavoriteMusic })
+      .then(() => {
         console.log("updated music successfully");
         window.location.reload();
       })
@@ -189,15 +188,15 @@ const updateUser = async (
 };
 
 const deleteFavoriteMusic = async (userData: any, music: Music) => {
-  let listFavorites = userData.data.favorites;
+  let listFavorites: Array<Music> = userData.data.favorites;
   const userCollRef = doc(db, "users", userData.id);
 
-  let filteredFavorite = listFavorites.filter(
+  let filteredFavorite: Array<Music> = listFavorites.filter(
     (favorite: Music) => favorite.title !== music.title
   );
 
   await updateDoc(userCollRef, { favorites: filteredFavorite })
-    .then((response) => {
+    .then(() => {
       console.log("updated music successfully");
       window.location.reload();
     })
