@@ -81,6 +81,8 @@ const signInWithGoogle = async () => {
       return user;
     })
     .catch((error) => {
+      localStorage.removeItem("user");
+
       // Handle Errors here.
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -124,6 +126,8 @@ const signInWithFacebook = async () => {
       return user;
     })
     .catch((error) => {
+      localStorage.removeItem("user");
+
       const errorCode = error.code;
       const errorMessage = error.message;
 

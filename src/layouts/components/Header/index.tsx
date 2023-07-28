@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./Header.css";
 import { useNavigate } from "react-router-dom";
+
 import { logOut } from "../../../services/userServices";
 import Button from "../../../components/Button";
 import User from "../../../models/User";
@@ -19,12 +20,28 @@ const Header: React.FC = () => {
   const [dataLocal, setDataLocal] = useState<any>([]);
 
   useEffect(() => {
-    if (jsonValue) {
-      const data = JSON.parse(jsonValue);
-      setDataLocal(data);
-    } else {
-      // Xử lý trường hợp dữ liệu không tồn tại trong LocalStorage.
+    try {
+      setDataLocal(JSON.parse(jsonValue));
+    } catch (error) {
+      localStorage.removeItem("user");
+
+      navigate("/");
+      //window.location.reload();
+
+      const notify = () => toast.error("Account cant found");
+      notify();
     }
+    // if (JSON.parse(jsonValue) !== undefined) {
+    //   setDataLocal(JSON.parse(jsonValue));
+    // } else {
+    //   localStorage.removeItem("user");
+
+    //   navigate("/");
+    //   window.location.reload();
+
+    //   const notify = () => toast.error("Account cant found");
+    //   notify();
+    // }
 
     getSingleUser(dataLocal?.uid).then((user: any) => {
       setUserInfo(user?.data);
