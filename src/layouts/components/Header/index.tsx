@@ -26,12 +26,10 @@ const Header: React.FC = () => {
       localStorage.removeItem("user");
 
       navigate("/");
-    
 
-      const notify = () => toast.error("Account cant found");
-      notify();
+      // const notify = () => toast.error("Account cant found");
+      // notify();
     }
- 
 
     getSingleUser(dataLocal?.uid).then((user: any) => {
       setUserInfo(user?.data);

@@ -143,8 +143,6 @@ const logOut = async () => {
   await signOut(auth)
     .then(() => {
       // Sign-out successful.
-
-    
     })
     .catch((error) => {
       // An error happened.
@@ -180,12 +178,11 @@ const updateUser = async (
     const userCollRef = doc(db, "users", user.id);
 
     if (!isUnique) {
-      console.log("this music already have");
+      alert("this music already have");
     } else {
       await updateDoc(userCollRef, { favorites: uniqueFavoriteMusic })
         .then(() => {
           console.log("updated music successfully");
-          //window.location.reload();
         })
         .catch((error) => {
           console.log(error.message);
@@ -206,7 +203,6 @@ const deleteFavoriteMusic = async (userData: any, music: Music) => {
     await updateDoc(userCollRef, { favorites: filteredFavorite })
       .then(() => {
         console.log("updated music successfully");
-        //window.location.reload();
       })
       .catch((error) => {
         console.log(error.message);
