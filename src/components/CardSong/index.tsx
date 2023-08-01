@@ -3,6 +3,7 @@ import { getSingleUser } from "../../services/userServices";
 import { useEffect, useState } from "react";
 import "./CardSong.css";
 import Button from "../Button";
+import Image from "../Image";
 import User from "../../models/User";
 import Music from "../../models/Music";
 import { updateUser, deleteFavoriteMusic } from "../../services/userServices";
@@ -48,7 +49,12 @@ const CardSong: React.FC<Props> = ({ music }) => {
     <>
       <div className="card flex items-center justify-between w-full my-4">
         <a href={music.url} target="_blank" className="flex items-center ">
-          <img src={music.img} alt="music avatar" className="music_icon mr-3" />
+         
+          <Image
+            src={music.img}
+            alt="music avatar"
+            styleClass="music_icon mr-3"
+          />
           <div className="flex flex-col items-start">
             <h2 className="font-bold ">{music?.title}</h2>
             <h3 className="text-sky-500">{music?.author}</h3>
@@ -96,7 +102,6 @@ const CardSong: React.FC<Props> = ({ music }) => {
           )}
         </div>
       </div>
-     
     </>
   );
 };

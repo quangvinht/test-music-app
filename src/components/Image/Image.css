@@ -1,0 +1,5 @@
+.image_component {
+  padding: 5px;
+  object-position: center;
+  object-fit: cover;
+}

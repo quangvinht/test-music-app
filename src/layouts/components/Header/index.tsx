@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { getSingleUser } from "../../../services/userServices";
+import Image from "../../../components/Image";
 
 const Header: React.FC = () => {
   let { pathname } = useLocation();
@@ -68,13 +69,13 @@ const Header: React.FC = () => {
         {pathname !== "/" && (
           <div className="flex">
             <div className="flex items-center">
-              <img
-                onClick={() => {
+              <Image
+                clickEvent={() => {
                   navigate(`/profile/${userInfo?.uid}`);
                 }}
                 src={dataLocal?.photoURL}
                 alt="avatar"
-                className="avatar mr-2"
+                styleClass="avatar mr-2"
               />
               <div className="flex flex-col items-start">
                 <h2 className="font-bold">Xin chào,</h2>
