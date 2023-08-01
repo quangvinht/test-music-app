@@ -26,22 +26,12 @@ const Header: React.FC = () => {
       localStorage.removeItem("user");
 
       navigate("/");
-      //window.location.reload();
+    
 
       const notify = () => toast.error("Account cant found");
       notify();
     }
-    // if (JSON.parse(jsonValue) !== undefined) {
-    //   setDataLocal(JSON.parse(jsonValue));
-    // } else {
-    //   localStorage.removeItem("user");
-
-    //   navigate("/");
-    //   window.location.reload();
-
-    //   const notify = () => toast.error("Account cant found");
-    //   notify();
-    // }
+ 
 
     getSingleUser(dataLocal?.uid).then((user: any) => {
       setUserInfo(user?.data);
@@ -103,7 +93,6 @@ const Header: React.FC = () => {
           </div>
         )}
       </header>
-      <ToastContainer />
     </>
   );
 };

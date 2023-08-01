@@ -12,9 +12,10 @@ const Profile = () => {
     let jsonValue: any = localStorage.getItem("user");
     let data: any = JSON.parse(jsonValue);
     getSingleUser(data?.uid).then((user: any) => {
+      console.log("Profile list: ", user.data.favorites);
       setMusics(user.data.favorites);
     });
-  }, []);
+  }, [musics]);
 
   return (
     <>

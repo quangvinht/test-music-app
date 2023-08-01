@@ -31,6 +31,8 @@ const CardSong: React.FC<Props> = ({ music }) => {
   }, []);
 
   const handleSaveMusic = () => {
+    console.log(userInfo);
+
     updateUser(userInfo, music);
     const notify = () => toast.success("Add favorite music successfully !");
     notify();
@@ -94,7 +96,7 @@ const CardSong: React.FC<Props> = ({ music }) => {
           )}
         </div>
       </div>
-      <ToastContainer />
+     
     </>
   );
 };

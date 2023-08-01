@@ -33,7 +33,7 @@ const getAllUsers = async () => {
   return userData;
 };
 
-const getSingleUser = async (id: string) => {
+const getSingleUser = async (uid: string) => {
   let userData: Array<Object> = [];
   const querySnapshot = await getDocs(collection(db, "users"));
   querySnapshot.forEach((doc) => {
@@ -42,7 +42,7 @@ const getSingleUser = async (id: string) => {
   });
 
   const findUser = userData.find((user: any) => {
-    return user.data.uid === id;
+    return user.data.uid === uid;
   });
 
   return findUser;
@@ -143,7 +143,8 @@ const logOut = async () => {
   await signOut(auth)
     .then(() => {
       // Sign-out successful.
-      console.log("signout succfully");
+
+    
     })
     .catch((error) => {
       // An error happened.
@@ -155,58 +156,62 @@ const updateUser = async (
 
   musicFavorite: Music
 ) => {
-  const updateFavoriteMusic: Array<any> = [
-    ...userData.data.favorites,
-    musicFavorite,
-  ];
+  getSingleUser(userData.data.uid).then(async (user: any) => {
+    let updateFavoriteMusic: Array<any> = [
+      ...user.data.favorites,
+      musicFavorite,
+    ];
 
-  let isUnique: boolean = false;
+    let isUnique: boolean = false;
 
-  const uniqueFavoriteMusic = [];
-  const seenTitles = new Set();
+    let uniqueFavoriteMusic = [];
+    let seenTitles = new Set();
 
-  for (const obj of updateFavoriteMusic) {
-    if (!seenTitles.has(obj.title)) {
-      isUnique = true;
-      uniqueFavoriteMusic.push(obj);
-      seenTitles.add(obj.title);
-    } else {
-      isUnique = false;
+    for (let obj of updateFavoriteMusic) {
+      if (!seenTitles.has(obj.title)) {
+        isUnique = true;
+        uniqueFavoriteMusic.push(obj);
+        seenTitles.add(obj.title);
+      } else {
+        isUnique = false;
+      }
     }
-  }
 
-  const userCollRef = doc(db, "users", userData.id);
+    const userCollRef = doc(db, "users", user.id);
 
-  if (!isUnique) {
-    console.log("this music already have");
-  } else {
-    await updateDoc(userCollRef, { favorites: uniqueFavoriteMusic })
+    if (!isUnique) {
+      console.log("this music already have");
+    } else {
+      await updateDoc(userCollRef, { favorites: uniqueFavoriteMusic })
+        .then(() => {
+          console.log("updated music successfully");
+          //window.location.reload();
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+  });
+};
+
+const deleteFavoriteMusic = async (userData: any, music: Music) => {
+  getSingleUser(userData.data.uid).then(async (user: any) => {
+    let listFavorites: Array<Music> = user.data.favorites;
+    const userCollRef = doc(db, "users", userData.id);
+
+    const filteredFavorite: Array<Music> = listFavorites.filter(
+      (favorite: Music) => favorite.title !== music.title
+    );
+
+    await updateDoc(userCollRef, { favorites: filteredFavorite })
       .then(() => {
         console.log("updated music successfully");
-        window.location.reload();
+        //window.location.reload();
       })
       .catch((error) => {
         console.log(error.message);
       });
-  }
-};
-
-const deleteFavoriteMusic = async (userData: any, music: Music) => {
-  let listFavorites: Array<Music> = userData.data.favorites;
-  const userCollRef = doc(db, "users", userData.id);
-
-  let filteredFavorite: Array<Music> = listFavorites.filter(
-    (favorite: Music) => favorite.title !== music.title
-  );
-
-  await updateDoc(userCollRef, { favorites: filteredFavorite })
-    .then(() => {
-      console.log("updated music successfully");
-      window.location.reload();
-    })
-    .catch((error) => {
-      console.log(error.message);
-    });
+  });
 };
 
 export {
