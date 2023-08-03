@@ -140,11 +140,6 @@ const saveFavoriteMusic = async (userData: any, musicFavorite: Music) => {
     const user: any = await getSingleUser(userData.data.uid);
     const userFavorites: Music[] = user.data.favorites;
 
-    if (userFavorites.some((fav: Music) => fav.title === musicFavorite.title)) {
-      alert("This music already exists in favorites.");
-      return;
-    }
-
     const seenTitles = new Set();
     const uniqueFavoriteMusic = userFavorites.filter((fav: Music) => {
       if (!seenTitles.has(fav.title)) {
