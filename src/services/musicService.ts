@@ -10,15 +10,12 @@ const addMusic = async (music: Music) => {
 };
 
 const getAllMusics = async () => {
-  let musics: Array<Object> = [];
-
   const querySnapshot = await getDocs(collection(db, "musics"));
-  querySnapshot.forEach((doc: any) => {
-    const musicInfo = { id: doc.id, data: doc.data() };
-    musics.push(musicInfo);
-  });
 
-  return musics;
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    data: doc.data(),
+  }));
 };
 
 export { addMusic, getAllMusics };

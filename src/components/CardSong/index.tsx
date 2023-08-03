@@ -6,9 +6,12 @@ import Button from "../Button";
 import Image from "../Image";
 import User from "../../models/User";
 import Music from "../../models/Music";
-import { updateUser, deleteFavoriteMusic } from "../../services/userServices";
+import {
+  saveFavoriteMusic,
+  deleteFavoriteMusic,
+} from "../../services/userServices";
 import { useLocation } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, useToast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -19,28 +22,48 @@ interface Props {
 const CardSong: React.FC<Props> = ({ music }) => {
   const [userInfo, setUserInfo] = useState<User>();
   const [idUser, setIdUser] = useState<string>("");
+  const [isHaveFavoriteMusic, setIsHaveFavoriteMusic] =
+    useState<boolean>(false);
 
   let { pathname } = useLocation();
 
   useEffect(() => {
-    let jsonValue: any = localStorage.getItem("user");
-    let parse: any = JSON.parse(jsonValue);
-    getSingleUser(parse?.uid).then((user: any) => {
-      setUserInfo(user);
-      setIdUser(user.id);
-    });
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const jsonValue: any = localStorage.getItem("user");
+        const parse: any = JSON.parse(jsonValue);
 
-  const handleSaveMusic = () => {
-    console.log(userInfo);
+        if (parse?.uid) {
+          const user: any = await getSingleUser(parse.uid);
+          if (
+            user.data.favorites.some(
+              (favorites: Music) => favorites.title === music.title
+            )
+          ) {
+            setIsHaveFavoriteMusic(true);
+          } else {
+            setIsHaveFavoriteMusic(false);
+          }
 
-    updateUser(userInfo, music);
+          setUserInfo(user);
+          setIdUser(user.id);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [userInfo]);
+
+  const handleSaveMusic = async () => {
+    await saveFavoriteMusic(userInfo, music);
     const notify = () => toast.success("Add favorite music successfully !");
     notify();
   };
 
-  const handleDeleteMusic = () => {
-    deleteFavoriteMusic(userInfo, music);
+  const handleDeleteMusic = async () => {
+    await deleteFavoriteMusic(userInfo, music);
     const notify = () => toast.info("Delete favorite music successfully !");
     notify();
   };
@@ -49,7 +72,6 @@ const CardSong: React.FC<Props> = ({ music }) => {
     <>
       <div className="card flex items-center justify-between w-full my-4">
         <a href={music.url} target="_blank" className="flex items-center ">
-         
           <Image
             src={music.img}
             alt="music avatar"
@@ -66,6 +88,7 @@ const CardSong: React.FC<Props> = ({ music }) => {
               clickEvent={handleSaveMusic}
               status="logout"
               styleClass="p-2"
+              disabled={isHaveFavoriteMusic}
             >
               {" "}
               <div className="flex items-center">

@@ -22,121 +22,107 @@ const addUser = async (user: User) => {
 };
 
 const getAllUsers = async () => {
-  let userData: Array<Object> = [];
-
   const querySnapshot = await getDocs(collection(db, "users"));
-  querySnapshot.forEach((doc) => {
-    const userInfo = { id: doc.id, data: doc.data() };
-    userData.push(userInfo);
-  });
 
-  return userData;
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    data: doc.data(),
+  }));
 };
 
 const getSingleUser = async (uid: string) => {
-  let userData: Array<Object> = [];
   const querySnapshot = await getDocs(collection(db, "users"));
-  querySnapshot.forEach((doc) => {
-    const userInfo: Object = { id: doc.id, data: doc.data() };
-    userData.push(userInfo);
-  });
+  const userData = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    data: doc.data(),
+  }));
 
-  const findUser = userData.find((user: any) => {
-    return user.data.uid === uid;
-  });
-
-  return findUser;
+  return userData.find((user) => user.data.uid === uid) || null;
 };
 
 const signInWithGoogle = async () => {
-  const provider = new GoogleAuthProvider();
-  provider.addScope("email");
-  return await signInWithPopup(auth, provider)
-    .then((result: any) => {
-      const credential = GoogleAuthProvider.credentialFromResult(result);
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.addScope("email");
+    const result = await signInWithPopup(auth, provider);
 
-      const user = result.user;
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const user = result.user;
 
-      const { uid, displayName, email, photoURL } = user;
-      const createUser: User = {
-        uid,
-        name: displayName,
-        email,
-        img: photoURL,
-        favorites: [],
-      };
-      const allUserData = getAllUsers().then((users) => {
-        return users.find((user: any) => user.data.uid === uid);
-      });
-      const checkAddUser = async () => {
-        const data = await allUserData;
+    const { uid, displayName, email, photoURL } = user;
+    const createUser: User = {
+      uid,
+      name: displayName,
+      email,
+      img: photoURL,
+      favorites: [],
+    };
 
-        if (!data) {
-          addUser(createUser);
-        } else {
-          console.log("user exits");
-        }
-      };
-      checkAddUser();
-      return user;
-    })
-    .catch((error) => {
-      localStorage.removeItem("user");
+    const allUsers = await getAllUsers();
+    const existingUser = allUsers.find((user) => user.data.uid === uid);
 
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      // ...
-    });
+    if (!existingUser) {
+      await addUser(createUser);
+    } else {
+      console.log("User already exists");
+    }
+
+    return user;
+  } catch (error: any) {
+    localStorage.removeItem("user");
+
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData?.email;
+    // The AuthCredential type that was used.
+    const credential = GoogleAuthProvider.credentialFromError(error);
+    // ...
+    throw error; // Rethrow the error for higher-level error handling
+  }
 };
 
 const signInWithFacebook = async () => {
-  const provider = new FacebookAuthProvider();
-  provider.addScope("email");
+  try {
+    const provider = new FacebookAuthProvider();
+    provider.addScope("email");
+    const result = await signInWithPopup(auth, provider);
 
-  return await signInWithPopup(auth, provider)
-    .then((result: any) => {
-      const user = result.user;
+    const user = result.user;
 
-      const { uid, displayName, email, photoURL } = user;
-      const createUser: User = {
-        uid,
-        name: displayName,
-        email,
-        img: photoURL,
-        favorites: [],
-      };
-      const allUserData = getAllUsers().then((users) => {
-        return users.find((user: any) => user.data.uid === uid);
-      });
-      const checkAddUser = async () => {
-        const data = await allUserData;
+    const { uid, displayName, email, photoURL } = user;
+    const createUser: User = {
+      uid,
+      name: displayName,
+      email,
+      img: photoURL,
+      favorites: [],
+    };
 
-        if (!data) {
-          addUser(createUser);
-        } else {
-          console.log("user exits");
-        }
-      };
-      checkAddUser();
-      return user;
-    })
-    .catch((error) => {
-      localStorage.removeItem("user");
+    const allUsers = await getAllUsers();
+    const existingUser = allUsers.find((user) => user.data.uid === uid);
 
-      const errorCode = error.code;
-      const errorMessage = error.message;
+    if (!existingUser) {
+      await addUser(createUser);
+    } else {
+      console.log("User already exists");
+    }
 
-      const email = error.customData.email;
+    return user;
+  } catch (error: any) {
+    localStorage.removeItem("user");
 
-      const credential = FacebookAuthProvider.credentialFromError(error);
+    const errorCode = error.code;
+    const errorMessage = error.message;
 
-      // ...
-    });
+    const email = error.customData?.email;
+
+    const credential = FacebookAuthProvider.credentialFromError(error);
+
+    // ...
+    throw error; // Rethrow the error for higher-level error handling
+  }
 };
 
 const logOut = async () => {
@@ -149,65 +135,48 @@ const logOut = async () => {
     });
 };
 
-const updateUser = async (
-  userData: any,
+const saveFavoriteMusic = async (userData: any, musicFavorite: Music) => {
+  try {
+    const user: any = await getSingleUser(userData.data.uid);
+    const userFavorites: Music[] = user.data.favorites;
 
-  musicFavorite: Music
-) => {
-  getSingleUser(userData.data.uid).then(async (user: any) => {
-    let updateFavoriteMusic: Array<any> = [
-      ...user.data.favorites,
-      musicFavorite,
-    ];
-
-    let isUnique: boolean = false;
-
-    let uniqueFavoriteMusic = [];
-    let seenTitles = new Set();
-
-    for (let obj of updateFavoriteMusic) {
-      if (!seenTitles.has(obj.title)) {
-        isUnique = true;
-        uniqueFavoriteMusic.push(obj);
-        seenTitles.add(obj.title);
-      } else {
-        isUnique = false;
-      }
+    if (userFavorites.some((fav: Music) => fav.title === musicFavorite.title)) {
+      alert("This music already exists in favorites.");
+      return;
     }
+
+    const seenTitles = new Set();
+    const uniqueFavoriteMusic = userFavorites.filter((fav: Music) => {
+      if (!seenTitles.has(fav.title)) {
+        seenTitles.add(fav.title);
+        return true;
+      }
+      return false;
+    });
 
     const userCollRef = doc(db, "users", user.id);
-
-    if (!isUnique) {
-      alert("this music already have");
-    } else {
-      await updateDoc(userCollRef, { favorites: uniqueFavoriteMusic })
-        .then(() => {
-          console.log("updated music successfully");
-        })
-        .catch((error) => {
-          console.log(error.message);
-        });
-    }
-  });
+    await updateDoc(userCollRef, {
+      favorites: [...uniqueFavoriteMusic, musicFavorite],
+    });
+    console.log("Updated music successfully");
+  } catch (error: any) {
+    console.log(error.message);
+  }
 };
 
 const deleteFavoriteMusic = async (userData: any, music: Music) => {
-  getSingleUser(userData.data.uid).then(async (user: any) => {
-    let listFavorites: Array<Music> = user.data.favorites;
-    const userCollRef = doc(db, "users", userData.id);
-
-    const filteredFavorite: Array<Music> = listFavorites.filter(
+  try {
+    const user: any = await getSingleUser(userData.data.uid);
+    const updatedFavorites: Music[] = user.data.favorites.filter(
       (favorite: Music) => favorite.title !== music.title
     );
 
-    await updateDoc(userCollRef, { favorites: filteredFavorite })
-      .then(() => {
-        console.log("updated music successfully");
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  });
+    const userCollRef = doc(db, "users", userData.id);
+    await updateDoc(userCollRef, { favorites: updatedFavorites });
+    console.log("Deleted music successfully");
+  } catch (error: any) {
+    console.log(error.message);
+  }
 };
 
 export {
@@ -216,6 +185,6 @@ export {
   signInWithFacebook,
   getAllUsers,
   getSingleUser,
-  updateUser,
+  saveFavoriteMusic,
   deleteFavoriteMusic,
 };

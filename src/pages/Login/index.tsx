@@ -12,31 +12,33 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     try {
-      signInWithGoogle().then((user: any) => {
-        const notify = () => toast.success("Sign in successfully");
-        notify();
-        localStorage.setItem("user", JSON.stringify(user));
+      const user = await signInWithGoogle();
+      const notify = () => toast.success("Sign in successfully");
+      notify();
 
-        navigate("/home");
-      });
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate("/home");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       const notify = () => toast.error("Sign in failed");
       notify();
     }
   };
-  const handleFacebook = () => {
+
+  const handleFacebook = async () => {
     try {
-      signInWithFacebook().then((user: any) => {
-        localStorage.setItem("user", JSON.stringify(user));
-        const notify = () => toast.success("Sign in successfully");
-        notify();
-        navigate("/home");
-      });
+      const user = await signInWithFacebook();
+      localStorage.setItem("user", JSON.stringify(user));
+
+      const notify = () => toast.success("Sign in successfully");
+      notify();
+
+      navigate("/home");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+
       const notify = () => toast.error("Sign in failed");
       notify();
     }

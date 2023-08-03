@@ -21,21 +21,22 @@ const Header: React.FC = () => {
   const [dataLocal, setDataLocal] = useState<any>([]);
 
   useEffect(() => {
-    try {
-      setDataLocal(JSON.parse(jsonValue));
-    } catch (error) {
-      localStorage.removeItem("user");
+    async function fetchData() {
+      try {
+        const parsedData: any = JSON.parse(jsonValue);
+        setDataLocal(parsedData);
 
-      navigate("/");
-
-      // const notify = () => toast.error("Account cant found");
-      // notify();
+        const user: any = await getSingleUser(parsedData?.uid);
+        setUserInfo(user?.data);
+      } catch (error) {
+        localStorage.removeItem("user");
+        navigate("/");
+        // toast.error("Account can't be found");
+      }
     }
 
-    getSingleUser(dataLocal?.uid).then((user: any) => {
-      setUserInfo(user?.data);
-    });
-  }, [dataLocal?.uid, jsonValue]);
+    fetchData();
+  }, [jsonValue]);
 
   const navigate = useNavigate();
   const handleSignOut = async () => {
@@ -46,15 +47,16 @@ const Header: React.FC = () => {
     navigate("/");
   };
 
+  const handleToHome = () => {
+    if (jsonValue) {
+      navigate("/home");
+    }
+  };
+
   return (
     <>
       <header className="header flex justify-between items-center  ">
-        <div
-          onClick={() => {
-            navigate("/home");
-          }}
-          className="flex items-center"
-        >
+        <div onClick={handleToHome} className="flex items-center">
           <div className="text-5xl mr-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"

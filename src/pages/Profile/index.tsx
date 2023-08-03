@@ -7,14 +7,22 @@ import CardSong from "../../components/CardSong";
 
 const Profile = () => {
   const [musics, setMusics] = useState<Array<Music>>([]);
-
   useEffect(() => {
-    let jsonValue: any = localStorage.getItem("user");
-    let data: any = JSON.parse(jsonValue);
-    getSingleUser(data?.uid).then((user: any) => {
-      console.log("Profile list: ", user.data.favorites);
-      setMusics(user.data.favorites);
-    });
+    async function fetchUserData() {
+      try {
+        const jsonValue: any = localStorage.getItem("user");
+        const data = JSON.parse(jsonValue);
+
+        if (data?.uid) {
+          const user: any = await getSingleUser(data.uid);
+          setMusics(user.data.favorites);
+        }
+      } catch (error) {
+        // Xử lý lỗi nếu cần
+      }
+    }
+
+    fetchUserData();
   }, [musics]);
 
   return (

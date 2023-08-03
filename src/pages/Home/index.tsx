@@ -2,14 +2,18 @@ import CardSong from "../../components/CardSong";
 import "./Home.css";
 import { useEffect, useState } from "react";
 import { getAllMusics } from "../../services/musicService";
+import Music from "../../models/Music";
 
 const Home = () => {
   const [musics, setMusics] = useState<Array<Object>>([]);
 
   useEffect(() => {
-    getAllMusics().then((musics: Array<Object>) => {
+    async function fetchMusics() {
+      const musics = await getAllMusics();
       setMusics(musics);
-    });
+    }
+
+    fetchMusics();
   }, []);
 
   return (
