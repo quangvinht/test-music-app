@@ -90,7 +90,7 @@ const CardSong: React.FC<Props> = ({ music }) => {
               styleClass="p-2"
               disabled={isHaveFavoriteMusic}
             >
-              {isHaveFavoriteMusic ? (
+              {isHaveFavoriteMusic && (
                 <div className="flex items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,8 @@ const CardSong: React.FC<Props> = ({ music }) => {
                   </svg>
                   <p className="ml-3">Saved Favorite</p>
                 </div>
-              ) : (
+              )}
+              {!isHaveFavoriteMusic && (
                 <div className="flex items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
